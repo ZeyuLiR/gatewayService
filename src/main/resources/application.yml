@@ -1,0 +1,45 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: GatewayDemo
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - http://localhost:3000  # frontend address
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - '*'
+            allowCredentials: true
+      discovery:
+        locator:
+          enabled: true # enable service search and register function
+          lower-case-service-id: true # turn service name to lower case
+      routes:
+        #list needs -
+        - id: one #id
+          uri: lb://authentication # lb:loadBalance EUREKA-CLIENT
+          predicates:
+            - Path=/api/auth/** # route rule
+
+        - id: two
+          uri: lb://tour
+          predicates:
+            - Path=/api/tours/**
+
+        - id: three
+          uri: lb://table
+          predicates:
+            - Path=/api/tables/**
+
+jwt:
+  secret: "cCk72!g#78r9JfGhTdP4x7q2MqLp$NkQ"
+
