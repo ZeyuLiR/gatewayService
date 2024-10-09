@@ -12,6 +12,8 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
+import java.util.Optional;
+
 @Component
 @Order(1)
 public class JwtAuthenticationFilter implements GlobalFilter {
@@ -24,18 +26,23 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         ServerHttpRequest request = exchange.getRequest();
 
         // skip login or register
-        if (request.getURI().getPath().contains("/api/auth/")) {
+        if (request.getURI().getPath().contains("/api/auth/") || request.getURI().getPath().contains("/api/orders/stripe")) {
             return chain.filter(exchange);
         }
         System.out.println(request.getURI().getPath());
         // get JWT token from header
         String token = request.getHeaders().getFirst("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
+        String urlToken = Optional.ofNullable(request.getQueryParams().getFirst("token")).orElse(null);
+        if ((token == null || !token.startsWith("Bearer ")) && urlToken == null) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
+        if (token != null && token.startsWith("Bearer ")){
+            token = token.substring(7); // 去掉 "Bearer " 前缀
+        } else if (urlToken != null) {
+            token = urlToken;
+        }
 
-        token = token.substring(7); // 去掉 "Bearer " 前缀
         try {
             // check JWT token and claims
             Claims claims = Jwts.parser()

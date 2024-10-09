@@ -40,6 +40,11 @@ spring:
           predicates:
             - Path=/api/tables/**
 
+        - id: four
+          uri: lb://order
+          predicates:
+            - Path=/api/orders/**
+
 jwt:
   secret: "cCk72!g#78r9JfGhTdP4x7q2MqLp$NkQ"
 
