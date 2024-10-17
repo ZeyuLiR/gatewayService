@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
             return exchange.getResponse().setComplete();
         }
         if (token != null && token.startsWith("Bearer ")){
-            token = token.substring(7); // 去掉 "Bearer " 前缀
+            token = token.substring(7);
         } else if (urlToken != null) {
             token = urlToken;
         }
